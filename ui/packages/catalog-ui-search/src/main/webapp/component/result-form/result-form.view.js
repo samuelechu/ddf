@@ -21,6 +21,8 @@ const store = require('js/store')
 const PropertyView = require('component/property/property.view')
 const Property = require('component/property/property')
 const metacardDefinitions = require('component/singletons/metacard-definitions')
+const rearrange = require('../dropdown/attributes-rearrange/dropdown.attributes-rearrange.view')
+const DropdownModel = require('component/dropdown/dropdown')
 const Loading = require('component/loading-companion/loading-companion.view')
 const _ = require('underscore')
 const announcement = require('component/announcement')
@@ -41,7 +43,8 @@ module.exports = Marionette.LayoutView.extend({
     basicTitle: '.basic-text',
     basicDescription: '.basic-description',
     basicAttribute: '.basic-type',
-    basicAttributeSpecific: '.basic-type-specific'
+    basicAttributeSpecific: '.basic-type-specific',
+    basicRearrange: '.basic-rearrange'
   },
   filter: undefined,
   onBeforeShow: function () {
@@ -49,32 +52,59 @@ module.exports = Marionette.LayoutView.extend({
     this.setupTitleInput()
     this.setupDescription()
     this.setupAttributeSpecific()
+    this.setupRearrange()
     this.edit()
   },
-  setupAttributeSpecific: function () {
+  getAttributeSpecific() {
     let currentValue = this.model.get('descriptors') !== {} || this.model.get('descriptors') !== [] ? this.model.get('descriptors') : []
     let excludedList = metacardDefinitions.getMetacardStartingTypes();
+    let includedAttributes = _.filter(metacardDefinitions.sortedMetacardTypes, function (type) {
+      return !metacardDefinitions.isHiddenTypeExceptThumbnail(type.id)
+    }).filter(function (type) {
+      return !excludedList.hasOwnProperty(type.id)
+    }).map(function (metacardType) {
+      return {
+        label: metacardType.alias || metacardType.id,
+        value: metacardType.id
+      }
+    })
+    return {currentValue, excludedList, includedAttributes}
+  },
+  setupAttributeSpecific: function () {
+    let {currentValue,includedAttributes} = this.getAttributeSpecific()
+    debugger
     this.basicAttributeSpecific.show(new PropertyView({
       model: new Property({
         enumFiltering: true,
         showValidationIssues: true,
         enumMulti: true,
-        enum: _.filter(metacardDefinitions.sortedMetacardTypes, function (type) {
-          return !metacardDefinitions.isHiddenTypeExceptThumbnail(type.id)
-        }).filter(function (type) {
-          return !excludedList.hasOwnProperty(type.id)
-        }).map(function (metacardType) {
-          return {
-            label: metacardType.alias || metacardType.id,
-            value: metacardType.id
-          }
-        }),
+        enum:includedAttributes,
         values: this.model.get('descriptors'),
         value: [currentValue],
         id: 'Attributes'
       })
     }))
   },
+  setupRearrange: function() {
+    let {includedAttributes:attributes} = this.getAttributeSpecific()
+    this.basicRearrange.show(new rearrange({
+      model: new DropdownModel({value: attributes}),
+      selectionInterface: this.options.selectionInterface,
+    }))
+  },
+  //const rearrange = require('../dropdown/attributes-rearrange/dropdown.attributes-rearrange.view')
+
+
+  
+  // generateDetailsRearrange: function(){
+  //   this.detailsRearrange.show(new AttributesRearrangeView({
+  //       model: new DropdownModel(),
+        
+  //       summary: this.options.summary
+  //   }), {
+  //       replaceElement: true
+  //   })
+// },
   setupTitleInput: function () {
     let currentValue = this.model.get('name') ? this.model.get('name') : ''
     this.basicTitle.show(new PropertyView({

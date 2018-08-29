@@ -25,37 +25,15 @@ var Sortable = require('sortablejs');
 var metacardDefinitions = require('component/singletons/metacard-definitions');
 
 function calculateAvailableAttributesFromSelection(selectionInterface) {
-    var types = _.union.apply(this, selectionInterface.getSelectedResults().map((result) => {
-        return [result.get('metacardType')];
-    }));
-    var possibleAttributes = _.intersection.apply(this, types.map((type) => {
-        return Object.keys(metacardDefinitions.metacardDefinitions[type]);
-    }));
-    return selectionInterface.getSelectedResults().reduce(function (currentAvailable, result) {
-        currentAvailable = _.union(currentAvailable, Object.keys(result.get('metacard').get('properties').toJSON()));
-        return currentAvailable;
-    }, []).filter((attribute) => possibleAttributes.indexOf(attribute) >= 0).filter(function (property) {
-        if (metacardDefinitions.metacardTypes[property]) {
-            return !metacardDefinitions.metacardTypes[property].hidden;
-        } else {
-            announcement.announce({
-                title: 'Missing Attribute Definition',
-                message: 'Could not find information for ' + property + ' in definitions.  If this problem persists, contact your Administrator.',
-                type: 'warn'
-            });
-            return false;
-        }
-    }).sort((a, b) => metacardDefinitions.attributeComparator(a, b));
+    debugger;
+    Array.from(selectionInterface, a => a["label"]).sort((a, b) => metacardDefinitions.attributeComparator(a, b))
 }
 
 module.exports = Marionette.ItemView.extend({
     template: template,
     tagName: CustomElements.register('attributes-rearrange'),
-    initialize: function (options) {
-        if (!options.selectionInterface) {
-            throw 'Selection interface has not been provided';
-        }
-        this.listenTo(this.options.selectionInterface, 'reset:activeSearchResults add:activeSearchResults', this.render);
+    initialize: function (options) { 
+        debugger
         this.listenTo(user.get('user').get('preferences'), 'change:inspector-summaryShown', this.render);
         this.listenTo(user.get('user').get('preferences'), 'change:inspector-detailsHidden', this.render);
     },
@@ -68,16 +46,16 @@ module.exports = Marionette.ItemView.extend({
                 return properties.summaryShow;
             }
         } else {
-            return calculateAvailableAttributesFromSelection(this.options.selectionInterface);
+            return calculateAvailableAttributesFromSelection(this.options.model.attributes.value);
         }
     },
     getHidden: function () {
         if (this.options.summary) {
             var usersChoice = user.get('user').get('preferences').get('inspector-summaryShown');
             if (usersChoice.length > 0) {
-                return calculateAvailableAttributesFromSelection(this.options.selectionInterface).filter((attr) => usersChoice.indexOf(attr) === -1);
+                return calculateAvailableAttributesFromSelection(this.options.model.attributes.value).filter((attr) => usersChoice.indexOf(attr) === -1);
             } else {
-                return calculateAvailableAttributesFromSelection(this.options.selectionInterface).filter((attr) => properties.summaryShow.indexOf(attr) === -1);
+                return calculateAvailableAttributesFromSelection(this.options.model.attributes.value).filter((attr) => properties.summaryShow.indexOf(attr) === -1);
             }
         } else {
             return user.get('user').get('preferences').get('inspector-detailsHidden');
@@ -109,7 +87,7 @@ module.exports = Marionette.ItemView.extend({
             }
         } else {
             var detailsOrder = user.get('user').get('preferences').get('inspector-detailsOrder');
-            return calculateAvailableAttributesFromSelection(this.options.selectionInterface).filter(function(attr){
+            return calculateAvailableAttributesFromSelection(this.options.model.attributes.value).filter(function(attr){
                 return detailsOrder.indexOf(attr) === -1;
             });
         }
@@ -121,7 +99,7 @@ module.exports = Marionette.ItemView.extend({
             return metacardDefinitions.attributeComparator(a,b);
         });
         var hidden = this.getHidden();
-        var availableAttributes = calculateAvailableAttributesFromSelection(this.options.selectionInterface);
+        var availableAttributes = calculateAvailableAttributesFromSelection(this.options.model.attributes.value);
 
         return _.union(preferredHeader, newAttributes).map(function (property) {
             return {
