@@ -127,6 +127,7 @@ define([
             this.set('label',label);
         },
         setValue: function(val){
+          //  debugger
             this.set('value', val);
         },
         getId: function(){

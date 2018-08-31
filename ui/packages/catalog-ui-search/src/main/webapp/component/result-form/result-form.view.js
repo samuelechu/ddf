@@ -57,22 +57,22 @@ module.exports = Marionette.LayoutView.extend({
   },
   getAttributeSpecific() {
     let currentValue = this.model.get('descriptors') !== {} || this.model.get('descriptors') !== [] ? this.model.get('descriptors') : []
-    let excludedList = metacardDefinitions.getMetacardStartingTypes();
+    let startingAttributes = metacardDefinitions.getMetacardStartingTypes();
     let includedAttributes = _.filter(metacardDefinitions.sortedMetacardTypes, function (type) {
       return !metacardDefinitions.isHiddenTypeExceptThumbnail(type.id)
     }).filter(function (type) {
-      return !excludedList.hasOwnProperty(type.id)
+      return !startingAttributes.hasOwnProperty(type.id)
     }).map(function (metacardType) {
       return {
         label: metacardType.alias || metacardType.id,
         value: metacardType.id
       }
     })
-    return {currentValue, excludedList, includedAttributes}
+    debugger
+    return {currentValue, startingAttributes, includedAttributes}
   },
   setupAttributeSpecific: function () {
     let {currentValue,includedAttributes} = this.getAttributeSpecific()
-    debugger
     this.basicAttributeSpecific.show(new PropertyView({
       model: new Property({
         enumFiltering: true,
@@ -86,9 +86,10 @@ module.exports = Marionette.LayoutView.extend({
     }))
   },
   setupRearrange: function() {
-    let {includedAttributes:attributes} = this.getAttributeSpecific()
+    let attributes = this.basicAttributeSpecific.currentView.model
+    debugger
     this.basicRearrange.show(new rearrange({
-      model: new DropdownModel({value: attributes}),
+      model: new DropdownModel({selectedAttributes: attributes}),
       selectionInterface: this.options.selectionInterface,
     }))
   },
@@ -137,6 +138,7 @@ module.exports = Marionette.LayoutView.extend({
     this.cleanup()
   },
   save: function () {
+    debugger
     let view = this
     Loading.beginLoading(view)
     let descriptors = this.basicAttributeSpecific.currentView.model.get('value')[0]

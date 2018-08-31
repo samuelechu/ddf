@@ -24,10 +24,12 @@ var properties = require('properties');
 var Sortable = require('sortablejs');
 var metacardDefinitions = require('component/singletons/metacard-definitions');
 
-function calculateAvailableAttributesFromSelection(selectionInterface) {
-    debugger;
-    Array.from(selectionInterface, a => a["label"]).sort((a, b) => metacardDefinitions.attributeComparator(a, b))
-}
+// function calculateAvailableAttributesFromSelection(selectionInterface) {
+//     if (!selectionInterface)
+//         return []
+//     return Array.from(selectionInterface, a => a["label"]).sort((a, b) => metacardDefinitions.attributeComparator(a, b))
+    
+// }
 
 module.exports = Marionette.ItemView.extend({
     template: template,
@@ -36,31 +38,19 @@ module.exports = Marionette.ItemView.extend({
         debugger
         this.listenTo(user.get('user').get('preferences'), 'change:inspector-summaryShown', this.render);
         this.listenTo(user.get('user').get('preferences'), 'change:inspector-detailsHidden', this.render);
+        this.listenTo(this.options.model.attributes.selectedAttributes, 'change:value', this.render);
     },
-    getShown: function () {
-        if (this.options.summary) {
-            var usersChoice = user.get('user').get('preferences').get('inspector-summaryShown');
-            if (usersChoice.length > 0) {
-                return usersChoice;
-            } else {
-                return properties.summaryShow;
-            }
-        } else {
-            return calculateAvailableAttributesFromSelection(this.options.model.attributes.value);
-        }
-    },
-    getHidden: function () {
-        if (this.options.summary) {
-            var usersChoice = user.get('user').get('preferences').get('inspector-summaryShown');
-            if (usersChoice.length > 0) {
-                return calculateAvailableAttributesFromSelection(this.options.model.attributes.value).filter((attr) => usersChoice.indexOf(attr) === -1);
-            } else {
-                return calculateAvailableAttributesFromSelection(this.options.model.attributes.value).filter((attr) => properties.summaryShow.indexOf(attr) === -1);
-            }
-        } else {
-            return user.get('user').get('preferences').get('inspector-detailsHidden');
-        }
-    },
+    
+    getSelectedAttributesModel: (model) => (model.attributes.selectedAttributes),
+    Icalled: function() {debugger
+        console.log("hello");
+        console.log(this.options.model)
+        console.log(this.options.getSelectedAttributesModel)
+        console.log( this.getSelectedAttributesModel(this.options.model).attributes.value[0]);
+        console.log( this.getSelectedAttributesModel(this.options.model).changed);
+         console.log("hello");}, 
+  
+    
     getPreferredOrder: function () {
         if (this.options.summary) {
             var usersShown = user.get('user').get('preferences').get('inspector-summaryShown');
@@ -87,29 +77,32 @@ module.exports = Marionette.ItemView.extend({
             }
         } else {
             var detailsOrder = user.get('user').get('preferences').get('inspector-detailsOrder');
-            return calculateAvailableAttributesFromSelection(this.options.model.attributes.value).filter(function(attr){
+            return calculateAvailableAttributesFromSelection(this.getSelectedAttributes(this.options.model)).filter(function(attr){
                 return detailsOrder.indexOf(attr) === -1;
             });
         }
     },
     serializeData: function () {
-        var preferredHeader = this.getPreferredOrder();
-        var newAttributes = this.getNewAttributes();
-        newAttributes.sort(function(a, b){
-            return metacardDefinitions.attributeComparator(a,b);
-        });
-        var hidden = this.getHidden();
-        var availableAttributes = calculateAvailableAttributesFromSelection(this.options.model.attributes.value);
+        //var preferredHeader = this.getPreferredOrder();
+        // var newAttributes = this.getNewAttributes();
+        // newAttributes.sort(function(a, b){
+        //     return metacardDefinitions.attributeComparator(a,b);
+        // });
+        //var hidden = this.getHidden();
+        debugger
+        var availableAttributes = this.getSelectedAttributesModel(this.options.model).attributes.value[0];
 
-        return _.union(preferredHeader, newAttributes).map(function (property) {
+        //var z = _.union(preferredHeader, availableAttributes).map(function (property) {
+        var z = availableAttributes.map(function(property) {
             return {
                 label: properties.attributeAliases[property],
                 id: property,
-                hidden: hidden.indexOf(property) >= 0,
-                notCurrentlyAvailable: (availableAttributes.indexOf(property) === -1) ||
+                hidden: false,
+                notCurrentlyAvailable: //(availableAttributes.indexOf(property) === -1) ||
                     (properties.isHidden(property)) || metacardDefinitions.isHiddenTypeExceptThumbnail(property)
             };
         });
+        return z
     },
     onRender: function () {
         Sortable.create(this.el, {
