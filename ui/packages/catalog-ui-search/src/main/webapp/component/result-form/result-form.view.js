@@ -43,19 +43,23 @@ module.exports = Marionette.LayoutView.extend({
     basicTitle: '.basic-text',
     basicDescription: '.basic-description',
     basicAttribute: '.basic-type',
-    basicAttributeSpecific: '.basic-type-specific',
-    basicRearrange: '.basic-rearrange'
+    attributeSelect: '.attribute-select',
+    summaryAttributeSelect: '.summary-attribute-select',
+    attributeRearrange: '.attribute-rearrange'
   },
   filter: undefined,
-  onBeforeShow: function () {
+  onBeforeShow: function() {
     this.model = this.model._cloneOf ? store.getQueryById(this.model._cloneOf) : this.model
     this.setupTitleInput()
     this.setupDescription()
-    this.setupAttributeSpecific()
-    this.setupRearrange()
+    debugger;
+    this.setupAttributeSelect()
+    this.setupSummaryAttributeSelect()
+    this.setupAttributeRearrange()
     this.edit()
+    this.listenTo(this.attributeSelect.currentView.model, 'change:value', this.updateSummaryAttributeSelect);
   },
-  getAttributeSpecific() {
+  getSelectedAttributes() {
     let currentValue = this.model.get('descriptors') !== {} || this.model.get('descriptors') !== [] ? this.model.get('descriptors') : []
     let startingAttributes = metacardDefinitions.getMetacardStartingTypes();
     let includedAttributes = _.filter(metacardDefinitions.sortedMetacardTypes, function (type) {
@@ -68,12 +72,11 @@ module.exports = Marionette.LayoutView.extend({
         value: metacardType.id
       }
     })
-    debugger
     return {currentValue, startingAttributes, includedAttributes}
   },
-  setupAttributeSpecific: function () {
-    let {currentValue,includedAttributes} = this.getAttributeSpecific()
-    this.basicAttributeSpecific.show(new PropertyView({
+  setupAttributeSelect: function () {
+    const {currentValue,includedAttributes} = this.getSelectedAttributes()
+    this.attributeSelect.show(new PropertyView({
       model: new Property({
         enumFiltering: true,
         showValidationIssues: true,
@@ -85,12 +88,36 @@ module.exports = Marionette.LayoutView.extend({
       })
     }))
   },
-  setupRearrange: function() {
-    let attributes = this.basicAttributeSpecific.currentView.model
-    debugger
-    this.basicRearrange.show(new rearrange({
+  setupSummaryAttributeSelect: function () {
+    const {currentValue: selectedAttributes} = this.getSelectedAttributes()
+    this.summaryAttributeSelect.show(new PropertyView({
+      model: new Property({
+        enumFiltering: true,
+        showValidationIssues: true,
+        enumMulti: true,
+        enum: selectedAttributes,
+        values: this.model.get('descriptors'),
+        value: [[]],
+        id: 'Summary Attributes'
+      })
+    }))
+  },
+  setupAttributeRearrange: function() {
+    let attributes = this.attributeSelect.currentView.model
+    this.attributeRearrange.show(new rearrange({
       model: new DropdownModel({selectedAttributes: attributes}),
       selectionInterface: this.options.selectionInterface,
+    }))
+  },
+
+  updateSummaryAttributeSelect: function() {
+    const attributeSelectModel = this.attributeSelect.currentView.model
+    const summaryAttributeSelectModel = this.summaryAttributeSelect.currentView.model
+    this.summaryAttributeSelect.show(new PropertyView({
+      model: new Property({
+        ...summaryAttributeSelectModel.attributes,
+        enum: attributeSelectModel.get('value')[0]
+      })
     }))
   },
   //const rearrange = require('../dropdown/attributes-rearrange/dropdown.attributes-rearrange.view')
