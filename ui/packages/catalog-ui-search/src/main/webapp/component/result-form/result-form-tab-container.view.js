@@ -17,7 +17,7 @@
  const $ = require('jquery')
  const template = require('component/search-form/search-form.collection.hbs')
  const ResultFormCollectionView = require('./result-form.collection.view')
- const ResultForm = require('./result-form')
+ const ResultFormCollection = require('component/singletons/result-form.collection-instance.js');
  const CustomElements = require('js/CustomElements')
  const LoadingCompanionView = require("component/loading-companion/loading-companion.view")
 
@@ -28,7 +28,7 @@
      collectionView: '.collection'
    },
    initialize: function() {
-    this.resultFormCollection = ResultForm.getResultCollection();
+    this.resultFormCollection = ResultFormCollection;
     this.listenTo(this.resultFormCollection, 'change:doneLoading', this.handleLoadingSpinner);
   },
    onRender: function () {

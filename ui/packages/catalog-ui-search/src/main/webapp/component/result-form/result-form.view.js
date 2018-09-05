@@ -26,7 +26,7 @@ const DropdownModel = require('component/dropdown/dropdown')
 const Loading = require('component/loading-companion/loading-companion.view')
 const _ = require('underscore')
 const announcement = require('component/announcement')
-const ResultFormCollection = require('component/result-form/result-form')
+const ResultFormCollection = require('component/singletons/result-form.collection-instance.js')
 const Common = require('js/Common')
 const ResultForm = require('component/search-form/search-form')
 
@@ -209,10 +209,10 @@ module.exports = Marionette.LayoutView.extend({
       data: JSON.stringify(_this.model.toJSON()),
       context: this,
       success: function (data) {
-        ResultFormCollection.getResultCollection().filteredList = _.filter(ResultFormCollection.getResultCollection().filteredList, function(template) {
+        ResultFormCollection.filteredList = _.filter(ResultFormCollection.filteredList, function(template) {
           return template.id !== _this.model.get('id')
         })
-        ResultFormCollection.getResultCollection().filteredList.push({
+        ResultFormCollection.filteredList.push({
             id: _this.model.get('id'),
             label: _this.model.get('title'),
             value: _this.model.get('title'),
@@ -222,7 +222,7 @@ module.exports = Marionette.LayoutView.extend({
             accessGroups: _this.model.get('accessGroups'),
             accessIndividuals: _this.model.get('accessIndividual')
           })
-          ResultFormCollection.getResultCollection().toggleUpdate()
+          ResultFormCollection.toggleUpdate()
           _this.cleanup()
       },
       error: _this.cleanup()

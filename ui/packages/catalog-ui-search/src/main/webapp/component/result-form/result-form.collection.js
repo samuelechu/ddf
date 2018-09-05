@@ -14,7 +14,7 @@
  **/
  /* global require */
  const Backbone = require('backbone')
- const ResultForm = require('component/search-form/search-form')
+ const ResultForm = require('component/result-form/result-form')
  const Common = require('js/Common')
  const user = require('component/singletons/user-instance')
  const $ = require('jquery')

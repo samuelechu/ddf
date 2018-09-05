@@ -13,34 +13,35 @@
  *
  **/
 /*global define,window*/
-// const Backbone = require('backbone')
-// const Shareable = require('js/model/Shareable')
+const _ = require('underscore');
+const Shareable = require('js/model/Shareable')
 
-// module.exports = Shareable.extend({
-//     defaults: {
-//         ...Shareable.defaults,
-//         name: "A Result Form",
-//         type: "custom",
-//         filterTemplate: "{\"property\":\"anyText\",\"value\":\"\",\"type\":\"ILIKE\"}",
-//         querySettings: {}
+module.exports = Shareable.extend({
+    defaults: {
+        ...Shareable.defaults,
+        name: "A Result Form",
+        
 
-//     }
-// });
-
- define([
-     'backbone',
-     './result-form.collection'
- ], function (Backbone, ResultFormCollection) {
-
-  let resultFormCollection = new ResultFormCollection();
-  return new (Backbone.Model.extend({
-      initialize: function () {
-      },
-      getResultCollection: function() {
-        return resultFormCollection;
     }
-    }));
-})
+});
+
+_.defaults(module.exports.prototype.defaults, Shareable.prototype.defaults)
+
+
+//  define([
+//      'backbone',
+//      './result-form.collection'
+//  ], function (Backbone, ResultFormCollection) {
+
+//   let resultFormCollection = new ResultFormCollection();
+//   return new (Backbone.Model.extend({
+//       initialize: function () {
+//       },
+//       getResultCollection: function() {
+//         return resultFormCollection;
+//     }
+//     }));
+// })
 
 
 // new ResultFormCollection();
