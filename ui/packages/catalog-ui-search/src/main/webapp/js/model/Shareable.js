@@ -10,17 +10,18 @@
  *
  **/
  /*global require*/
-const _ = require('underscore');
-const Shareable = require('js/model/Shareable')
+ var Backbone = require('backbone');
 
-module.exports = Shareable.extend({
+ module.exports = Backbone.Model.extend({
     defaults: {
-        name: "A Search Form",
-        type: "custom",
-        filterTemplate: "{\"property\":\"anyText\",\"value\":\"\",\"type\":\"ILIKE\"}",
-        querySettings: {}
+        name: "",
+        description: "",
+        createdBy: "admin",
+        owner: "admin",
+        createdOn: "",
+        id: undefined,
+        descriptors: [],
+        accessIndividuals: [],
+        accessGroups: [],
     }
-    
  });
- 
- _.defaults(module.exports.prototype.defaults, Shareable.prototype.defaults)

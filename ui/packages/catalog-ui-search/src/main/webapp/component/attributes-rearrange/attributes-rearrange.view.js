@@ -24,13 +24,6 @@ var properties = require('properties');
 var Sortable = require('sortablejs');
 var metacardDefinitions = require('component/singletons/metacard-definitions');
 
-// function calculateAvailableAttributesFromSelection(selectionInterface) {
-//     if (!selectionInterface)
-//         return []
-//     return Array.from(selectionInterface, a => a["label"]).sort((a, b) => metacardDefinitions.attributeComparator(a, b))
-    
-// }
-
 module.exports = Marionette.ItemView.extend({
     template: template,
     tagName: CustomElements.register('attributes-rearrange'),
@@ -42,15 +35,7 @@ module.exports = Marionette.ItemView.extend({
     },
     
     getSelectedAttributesModel: (model) => (model.attributes.selectedAttributes),
-    Icalled: function() {debugger
-        console.log("hello");
-        console.log(this.options.model)
-        console.log(this.options.getSelectedAttributesModel)
-        console.log( this.getSelectedAttributesModel(this.options.model).attributes.value[0]);
-        console.log( this.getSelectedAttributesModel(this.options.model).changed);
-         console.log("hello");}, 
-  
-    
+
     getPreferredOrder: function () {
         if (this.options.summary) {
             var usersShown = user.get('user').get('preferences').get('inspector-summaryShown');
@@ -105,8 +90,12 @@ module.exports = Marionette.ItemView.extend({
         return z
     },
     onRender: function () {
+        const currentOrdering = this.getSelectedAttributesModel(this.options.model)
         Sortable.create(this.el, {
             onEnd: () => {
+                debugger
+                // const newOrder = Array.from(this.el.children, child => child.getAttribute("data-propertyid"))
+                // currentOrdering.set('value', [newOrder])
                 this.handleSave();
             }
         });

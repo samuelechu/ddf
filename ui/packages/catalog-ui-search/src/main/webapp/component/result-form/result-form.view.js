@@ -30,6 +30,20 @@ const ResultFormCollection = require('component/result-form/result-form')
 const Common = require('js/Common')
 const ResultForm = require('component/search-form/search-form')
 
+
+
+// module.exports = Marionette.LayoutView.extend({
+//   template: template,
+//   tagName: CustomElements.register('result-form-collection'),
+//   regions: {
+//     collectionView: '.collection'
+//   },
+//   initialize: function() {
+//    this.resultFormCollection = ResultForm.getResultCollection();
+//    this.listenTo(this.resultFormCollection, 'change:doneLoading', this.handleLoadingSpinner);
+//  },
+
+
 module.exports = Marionette.LayoutView.extend({
   template: template,
   tagName: CustomElements.register('result-form'),
@@ -47,22 +61,26 @@ module.exports = Marionette.LayoutView.extend({
     summaryAttributeSelect: '.summary-attribute-select',
     attributeRearrange: '.attribute-rearrange'
   },
+  intialize: function() {
+  },
   filter: undefined,
   onBeforeShow: function() {
     this.model = this.model._cloneOf ? store.getQueryById(this.model._cloneOf) : this.model
     this.setupTitleInput()
     this.setupDescription()
-    debugger;
     this.setupAttributeSelect()
     this.setupSummaryAttributeSelect()
     this.setupAttributeRearrange()
     this.edit()
-    this.listenTo(this.attributeSelect.currentView.model, 'change:value', this.updateSummaryAttributeSelect);
+    this.listenTo(this.attributeSelect.currentView.model, 'change:value', this.updateSummaryAttributeSelect)
+ 
+    
   },
+  getSelectedAttributesForModel: (/*use a Property model*/ model) => (model.get('value')[0]),
   getSelectedAttributes() {
-    let currentValue = this.model.get('descriptors') !== {} || this.model.get('descriptors') !== [] ? this.model.get('descriptors') : []
-    let startingAttributes = metacardDefinitions.getMetacardStartingTypes();
-    let includedAttributes = _.filter(metacardDefinitions.sortedMetacardTypes, function (type) {
+    const currentValue = this.model.get('descriptors') !== {} || this.model.get('descriptors') !== [] ? this.model.get('descriptors') : []
+    const startingAttributes = metacardDefinitions.getMetacardStartingTypes();
+    const includedAttributes = _.filter(metacardDefinitions.sortedMetacardTypes, function (type) {
       return !metacardDefinitions.isHiddenTypeExceptThumbnail(type.id)
     }).filter(function (type) {
       return !startingAttributes.hasOwnProperty(type.id)
@@ -103,38 +121,14 @@ module.exports = Marionette.LayoutView.extend({
     }))
   },
   setupAttributeRearrange: function() {
-    let attributes = this.attributeSelect.currentView.model
+    const attributes = this.attributeSelect.currentView.model
     this.attributeRearrange.show(new rearrange({
       model: new DropdownModel({selectedAttributes: attributes}),
       selectionInterface: this.options.selectionInterface,
     }))
   },
-
-  updateSummaryAttributeSelect: function() {
-    const attributeSelectModel = this.attributeSelect.currentView.model
-    const summaryAttributeSelectModel = this.summaryAttributeSelect.currentView.model
-    this.summaryAttributeSelect.show(new PropertyView({
-      model: new Property({
-        ...summaryAttributeSelectModel.attributes,
-        enum: attributeSelectModel.get('value')[0]
-      })
-    }))
-  },
-  //const rearrange = require('../dropdown/attributes-rearrange/dropdown.attributes-rearrange.view')
-
-
-  
-  // generateDetailsRearrange: function(){
-  //   this.detailsRearrange.show(new AttributesRearrangeView({
-  //       model: new DropdownModel(),
-        
-  //       summary: this.options.summary
-  //   }), {
-  //       replaceElement: true
-  //   })
-// },
   setupTitleInput: function () {
-    let currentValue = this.model.get('name') ? this.model.get('name') : ''
+    const currentValue = this.model.get('name') ? this.model.get('name') : ''
     this.basicTitle.show(new PropertyView({
       model: new Property({
         value: [currentValue],
@@ -144,12 +138,26 @@ module.exports = Marionette.LayoutView.extend({
     }))
   },
   setupDescription: function () {
-    let currentValue = this.model.get('description') ? this.model.get('description') : ''
+    const currentValue = this.model.get('description') ? this.model.get('description') : ''
     this.basicDescription.show(new PropertyView({
       model: new Property({
         value: [currentValue],
         id: 'Description',
         placeholder: 'Result Form Description'
+      })
+    }))
+  }, 
+  updateSummaryAttributeSelect: function() {
+    const attributeSelectModel = this.attributeSelect.currentView.model
+    const summaryAttributeSelectModel = this.summaryAttributeSelect.currentView.model
+    const availableSummaryAttributes = this.getSelectedAttributesForModel(summaryAttributeSelectModel).filter(attribute => {
+      return attributeSelectModel.get('value')[0].includes(attribute)
+    })
+    this.summaryAttributeSelect.show(new PropertyView({
+      model: new Property({
+        ...summaryAttributeSelectModel.attributes,
+        enum: attributeSelectModel.get('value')[0],
+        value: [availableSummaryAttributes]
       })
     }))
   },
@@ -165,24 +173,25 @@ module.exports = Marionette.LayoutView.extend({
     this.cleanup()
   },
   save: function () {
-    debugger
-    let view = this
+    const view = this
     Loading.beginLoading(view)
-    let descriptors = this.basicAttributeSpecific.currentView.model.get('value')[0]
-    let title = this.basicTitle.currentView.model.getValue()[0]
+    const selectedAttributes = this.attributeSelect.currentView.model.get('value')[0]
+    const selectedSummaryAttributes = this.summaryAttributeSelect.currentView
+    
+    const title = this.basicTitle.currentView.model.getValue()[0]
     if(title === '')
     {
-      let $validationElement = this.basicTitle.currentView.$el.find('> .property-label .property-validation')
+      const $validationElement = this.basicTitle.currentView.$el.find('> .property-label .property-validation')
       $validationElement.removeClass('is-hidden').removeClass('is-warning').addClass('is-error')
       $validationElement.attr('title', "Name field cannot be blank")
       Loading.endLoading(view)
       return 
     }
-    let description = this.basicDescription.currentView.model.getValue()[0]
-    let id = this.model.get('id')
+    const description = this.basicDescription.currentView.model.getValue()[0]
+    const id = this.model.get('id')
 
     this.model.set({
-      'descriptors': descriptors.flatten(),
+      'descriptors': selectedAttributes.flatten(),
       'title': title,
       'description': description
     })
@@ -190,7 +199,7 @@ module.exports = Marionette.LayoutView.extend({
     this.updateResults()
   },
   updateResults: function () {
-    let resultEndpoint = `/search/catalog/internal/forms/result`
+    const resultEndpoint = `/search/catalog/internal/forms/result`
     var _this = this;
     $.ajax({
       url: resultEndpoint,

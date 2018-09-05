@@ -13,6 +13,19 @@
  *
  **/
 /*global define,window*/
+// const Backbone = require('backbone')
+// const Shareable = require('js/model/Shareable')
+
+// module.exports = Shareable.extend({
+//     defaults: {
+//         ...Shareable.defaults,
+//         name: "A Result Form",
+//         type: "custom",
+//         filterTemplate: "{\"property\":\"anyText\",\"value\":\"\",\"type\":\"ILIKE\"}",
+//         querySettings: {}
+
+//     }
+// });
 
  define([
      'backbone',
@@ -28,3 +41,6 @@
     }
     }));
 })
+
+
+// new ResultFormCollection();
