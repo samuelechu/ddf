@@ -28,7 +28,7 @@ const SortItemCollectionView = require('component/sort/sort.view')
 const Common = require('js/Common')
 const properties = require('properties')
 const plugin = require('plugins/query-settings')
-var ResultFormCollection = properties.hasExperimentalEnabled() ? require('component/singletons/result-form.collection-instance.js') : {};
+const ResultFormCollection = properties.hasExperimentalEnabled() ? require('component/singletons/result-form.collection-instance.js') : {};
 
 module.exports = plugin(Marionette.LayoutView.extend({
         template: template,

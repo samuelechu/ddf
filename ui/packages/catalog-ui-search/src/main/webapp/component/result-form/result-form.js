@@ -18,10 +18,10 @@ const Shareable = require('js/model/Shareable')
 
 module.exports = Shareable.extend({
     defaults: {
-        ...Shareable.defaults,
-        name: "A Result Form",
-        
-
+        name: "",
+        selectedDescriptors: [],
+        selectedSummaryDescriptors: [],
+        ordering: []
     }
 });
 

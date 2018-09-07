@@ -27,47 +27,47 @@ var metacardDefinitions = require('component/singletons/metacard-definitions');
 module.exports = Marionette.ItemView.extend({
     template: template,
     tagName: CustomElements.register('attributes-rearrange'),
-    initialize: function (options) { 
+    initialize(options) { 
         debugger
         this.listenTo(user.get('user').get('preferences'), 'change:inspector-summaryShown', this.render);
         this.listenTo(user.get('user').get('preferences'), 'change:inspector-detailsHidden', this.render);
-        this.listenTo(this.options.model.attributes.selectedAttributes, 'change:value', this.render);
+        this.listenTo(this.options.model.attributes.preferencesModel, 'change:selectedDescriptors', this.render);
     },
     
-    getSelectedAttributesModel: (model) => (model.attributes.selectedAttributes),
+    getPreferencesModel() {return this.options.model.attributes.preferencesModel},
+    getCurrentOrdering() {return Array.from(this.el.children, child => child.getAttribute("data-propertyid"))},
 
-    getPreferredOrder: function () {
-        if (this.options.summary) {
-            var usersShown = user.get('user').get('preferences').get('inspector-summaryShown');
-            var usersOrder = user.get('user').get('preferences').get('inspector-summaryOrder');
-            if (usersOrder.length > 0) {
-                return usersOrder;
-            } else {
-                return properties.summaryShow;
-            }
-        } else {
-            return user.get('user').get('preferences').get('inspector-detailsOrder');
-        }
-    },
-    getNewAttributes: function(){
-        if (this.options.summary) {
-            var usersShown = user.get('user').get('preferences').get('inspector-summaryShown');
-            var usersOrder = user.get('user').get('preferences').get('inspector-summaryOrder');
-            if (usersShown.length > 0 || usersOrder.length > 0) {
-                return usersShown.filter(function(attr){
-                    return usersOrder.indexOf(attr) === -1;
-                });
-            } else {
-                return [];
-            }
-        } else {
-            var detailsOrder = user.get('user').get('preferences').get('inspector-detailsOrder');
-            return calculateAvailableAttributesFromSelection(this.getSelectedAttributes(this.options.model)).filter(function(attr){
-                return detailsOrder.indexOf(attr) === -1;
-            });
-        }
-    },
-    serializeData: function () {
+    // getPreferredOrder() {
+    //     if (this.options.summary) {
+    //         var usersShown = user.get('user').get('preferences').get('inspector-summaryShown');
+    //         var usersOrder = user.get('user').get('preferences').get('inspector-summaryOrder');
+    //         if (usersOrder.length > 0) {
+    //             return usersOrder;
+    //         } else {
+    //             return properties.summaryShow;
+    //         }
+    //     } else {
+    //         return user.get('user').get('preferences').get('inspector-detailsOrder');
+    //     }
+    // },
+    // getNewAttributes() {
+    //     if (this.options.summary) {
+    //         var usersShown = user.get('user').get('preferences').get('inspector-summaryShown');
+    //         var usersOrder = user.get('user').get('preferences').get('inspector-summaryOrder');
+    //         if (usersShown.length > 0 || usersOrder.length > 0) {
+    //             return usersShown.filter(function(attr){
+    //                 return usersOrder.indexOf(attr) === -1;
+    //             });
+    //         } else {
+    //             return [];
+    //         }
+    //     } else {
+    //         var detailsOrder = user.get('user').get('preferences').get('inspector-detailsOrder');
+    //         return calculateAvailableAttributesFromSelection(this.getSelectedAttributes()).filter((attr) => (
+    //             detailsOrder.indexOf(attr) === -1));
+    //     }
+    // },
+    serializeData() {
         //var preferredHeader = this.getPreferredOrder();
         // var newAttributes = this.getNewAttributes();
         // newAttributes.sort(function(a, b){
@@ -75,10 +75,22 @@ module.exports = Marionette.ItemView.extend({
         // });
         //var hidden = this.getHidden();
         debugger
-        var availableAttributes = this.getSelectedAttributesModel(this.options.model).attributes.value[0];
+        const preferencesModel = this.options.model.attributes.preferencesModel
+        const selectedDescriptors = preferencesModel.get('selectedDescriptors')
+        const orderedDescriptors = preferencesModel.get('ordering')
+        const unorderedDescriptors = selectedDescriptors.filter(
+            descriptor => !orderedDescriptors.includes(descriptor)
+        )
 
+        const newOrdering = [...preferencesModel.get('ordering').filter(
+            descriptor => selectedDescriptors.includes(descriptor)
+        ), ...unorderedDescriptors]
+
+        // const availableSummaryAttributes = this.getSelectedAttributesForModel(summaryAttributeSelectModel).filter(attribute => {
+        //     return attributeSelectModel.get('value')[0].includes(attribute)
+        //   })
         //var z = _.union(preferredHeader, availableAttributes).map(function (property) {
-        var z = availableAttributes.map(function(property) {
+        var z = newOrdering.map(function(property) {
             return {
                 label: properties.attributeAliases[property],
                 id: property,
@@ -89,18 +101,20 @@ module.exports = Marionette.ItemView.extend({
         });
         return z
     },
-    onRender: function () {
-        const currentOrdering = this.getSelectedAttributesModel(this.options.model)
+    onRender() {
+
+        const preferencesModel = this.options.model.attributes.preferencesModel
+
+        debugger
         Sortable.create(this.el, {
             onEnd: () => {
                 debugger
-                // const newOrder = Array.from(this.el.children, child => child.getAttribute("data-propertyid"))
-                // currentOrdering.set('value', [newOrder])
-                this.handleSave();
+                const newOrdering = Array.from(this.el.children, child => child.getAttribute("data-propertyid"))
+                preferencesModel.set('ordering', newOrdering)
             }
         });
     },
-    handleSave: function () {
+    handleSave() {
         var prefs = user.get('user').get('preferences');
         var key = this.options.summary ? 'inspector-summaryOrder' : 'inspector-detailsOrder';
         prefs.set(key, _.map(this.$el.find('.column'), (function (element) {

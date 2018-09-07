@@ -28,7 +28,7 @@ const _ = require('underscore')
 const announcement = require('component/announcement')
 const ResultFormCollection = require('component/singletons/result-form.collection-instance.js')
 const Common = require('js/Common')
-const ResultForm = require('component/search-form/search-form')
+const ResultForm = require('./result-form')
 
 
 
@@ -47,6 +47,7 @@ const ResultForm = require('component/search-form/search-form')
 module.exports = Marionette.LayoutView.extend({
   template: template,
   tagName: CustomElements.register('result-form'),
+  model:ResultForm,
   modelEvents: {},
   events: {
     'click .editor-edit': 'edit',
@@ -65,20 +66,24 @@ module.exports = Marionette.LayoutView.extend({
   },
   filter: undefined,
   onBeforeShow: function() {
-    this.model = this.model._cloneOf ? store.getQueryById(this.model._cloneOf) : this.model
+    //this.model = this.model._cloneOf ? store.getQueryById(this.model._cloneOf) : this.model
+    debugger
     this.setupTitleInput()
     this.setupDescription()
     this.setupAttributeSelect()
     this.setupSummaryAttributeSelect()
     this.setupAttributeRearrange()
     this.edit()
-    this.listenTo(this.attributeSelect.currentView.model, 'change:value', this.updateSummaryAttributeSelect)
+    this.listenTo(this.attributeSelect.currentView.model, 'change:value', this.updateResultForm)
+    this.listenTo(this.summaryAttributeSelect.currentView.model, 'change:value', this.updateResultForm)
+   // this.listenTo(this.model, 'change:ordering', this.updateAtt)
+    //this.listenTo(this.model, 'change:ordering', this.updateAttributeSelect)
  
     
   },
   getSelectedAttributesForModel: (/*use a Property model*/ model) => (model.get('value')[0]),
   getSelectedAttributes() {
-    const currentValue = this.model.get('descriptors') !== {} || this.model.get('descriptors') !== [] ? this.model.get('descriptors') : []
+    const currentValue = this.model.get('selectedDescriptors') !== {} || this.model.get('selectedDescriptors') !== [] ? this.model.get('selectedDescriptors') : []
     const startingAttributes = metacardDefinitions.getMetacardStartingTypes();
     const includedAttributes = _.filter(metacardDefinitions.sortedMetacardTypes, function (type) {
       return !metacardDefinitions.isHiddenTypeExceptThumbnail(type.id)
@@ -100,9 +105,10 @@ module.exports = Marionette.LayoutView.extend({
         showValidationIssues: true,
         enumMulti: true,
         enum:includedAttributes,
-        values: this.model.get('descriptors'),
+        values: this.model.get('selectedDescriptors'),
         value: [currentValue],
-        id: 'Attributes'
+        id: 'Attributes',
+        ordering: ["ohsss", "sss"]
       })
     }))
   },
@@ -114,7 +120,7 @@ module.exports = Marionette.LayoutView.extend({
         showValidationIssues: true,
         enumMulti: true,
         enum: selectedAttributes,
-        values: this.model.get('descriptors'),
+        values: this.model.get('selectedSummaryDescriptors'),
         value: [[]],
         id: 'Summary Attributes'
       })
@@ -123,7 +129,7 @@ module.exports = Marionette.LayoutView.extend({
   setupAttributeRearrange: function() {
     const attributes = this.attributeSelect.currentView.model
     this.attributeRearrange.show(new rearrange({
-      model: new DropdownModel({selectedAttributes: attributes}),
+      model: new DropdownModel({preferencesModel: this.model}),
       selectionInterface: this.options.selectionInterface,
     }))
   },
@@ -147,16 +153,40 @@ module.exports = Marionette.LayoutView.extend({
       })
     }))
   }, 
-  updateSummaryAttributeSelect: function() {
+  updateAttributeSelect: function() {
+    debugger
     const attributeSelectModel = this.attributeSelect.currentView.model
+    this.attributeSelect.show(new PropertyView({
+      model: new Property({
+        ...attributeSelectModel.attributes,
+        value: [this.model.get('ordering')]
+      })
+    }))
+  },
+  updateResultForm() {
+    const attributeSelectModel = this.attributeSelect.currentView.model
+    this.model.set('selectedDescriptors', attributeSelectModel.get('value')[0])
+
+    
+    this.updateSummaryAttributeSelect()
     const summaryAttributeSelectModel = this.summaryAttributeSelect.currentView.model
-    const availableSummaryAttributes = this.getSelectedAttributesForModel(summaryAttributeSelectModel).filter(attribute => {
-      return attributeSelectModel.get('value')[0].includes(attribute)
+    this.model.set('selectedSummaryDescriptors', summaryAttributeSelectModel.get('value')[0])
+    
+
+  },
+  updateSummaryAttributeSelect: function() {
+
+    const summaryAttributeSelectModel = this.summaryAttributeSelect.currentView.model
+
+    // const availableSummaryAttributes = summaryAttributeSelectModel.get('value')[0]
+
+    const availableSummaryAttributes = summaryAttributeSelectModel.get('value')[0].filter(attribute => {
+      return this.model.get('selectedDescriptors').includes(attribute)
     })
     this.summaryAttributeSelect.show(new PropertyView({
       model: new Property({
         ...summaryAttributeSelectModel.attributes,
-        enum: attributeSelectModel.get('value')[0],
+        enum: this.model.get('selectedDescriptors'),
         value: [availableSummaryAttributes]
       })
     }))

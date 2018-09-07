@@ -18,7 +18,7 @@ const properties = require('properties')
 const lightboxResultInstance = require('component/lightbox/result/lightbox.result.view');
 const lightboxInstance = lightboxResultInstance.generateNewLightbox();
 const QueryResult = properties.hasExperimentalEnabled() ? require('component/result-form/result-form.view') : {}
-const SearchFormModel = require('component/search-form/search-form.js')
+const ResultFormModel = require('./result-form')
 const CustomElements = require('js/CustomElements')
 
 module.exports = SearchFormViews.extend({
@@ -30,8 +30,9 @@ module.exports = SearchFormViews.extend({
       this.triggerCloseDropdown();
       lightboxInstance.model.updateTitle(this.model.get('type') === 'new-result' ? '' : this.model.get('name'));
       lightboxInstance.model.open();
+      debugger
       lightboxInstance.lightboxContent.show(new QueryResult({
-        model: this.model.get('type') === 'new-result' ? new SearchFormModel({name: ''}) : this.model,
+        model: this.model.get('type') === 'new-result' ? new ResultFormModel() : this.model,
       }));
     }
   },
