@@ -86,7 +86,7 @@ module.exports = Marionette.LayoutView.extend({
     const currentValue = this.model.get('selectedDescriptors') !== {} || this.model.get('selectedDescriptors') !== [] ? this.model.get('selectedDescriptors') : []
     const startingAttributes = metacardDefinitions.getMetacardStartingTypes();
     const includedAttributes = _.filter(metacardDefinitions.sortedMetacardTypes, function (type) {
-      return !metacardDefinitions.isHiddenTypeExceptThumbnail(type.id)
+      return !metacardDefinitions.isHiddenTypeExceptThumbnail(type.id) 
     }).filter(function (type) {
       return !startingAttributes.hasOwnProperty(type.id)
     }).map(function (metacardType) {
@@ -106,9 +106,9 @@ module.exports = Marionette.LayoutView.extend({
         enumMulti: true,
         enum:includedAttributes,
         values: this.model.get('selectedDescriptors'),
-        value: [currentValue],
+        value: [this.model.get('selectedDescriptors')],
         id: 'Attributes',
-        ordering: ["ohsss", "sss"]
+        ordering: this.model.get('ordering')
       })
     }))
   },
@@ -121,7 +121,7 @@ module.exports = Marionette.LayoutView.extend({
         enumMulti: true,
         enum: selectedAttributes,
         values: this.model.get('selectedSummaryDescriptors'),
-        value: [[]],
+        value: [this.model.get('selectedSummaryDescriptors')],
         id: 'Summary Attributes'
       })
     }))
@@ -130,7 +130,6 @@ module.exports = Marionette.LayoutView.extend({
     const attributes = this.attributeSelect.currentView.model
     this.attributeRearrange.show(new rearrange({
       model: new DropdownModel({preferencesModel: this.model}),
-      selectionInterface: this.options.selectionInterface,
     }))
   },
   setupTitleInput: function () {

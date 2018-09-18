@@ -35,8 +35,6 @@ module.exports = Marionette.ItemView.extend({
     },
     
     getPreferencesModel() {return this.options.model.attributes.preferencesModel},
-    getCurrentOrdering() {return Array.from(this.el.children, child => child.getAttribute("data-propertyid"))},
-
     // getPreferredOrder() {
     //     if (this.options.summary) {
     //         var usersShown = user.get('user').get('preferences').get('inspector-summaryShown');
