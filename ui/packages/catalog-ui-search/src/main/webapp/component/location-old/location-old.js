@@ -285,7 +285,6 @@ define([
       console.log("calling function: repositionLatLonUtm for LowerRight")
 
       this.repositionLatLonUtmUps(
-      this.repositionLatLonUtm(
         function(_this) {
           return _this.isUtmUpsLowerRightDefined()
         },
@@ -440,7 +439,7 @@ define([
           let utmUps = this.LLtoUtmUps(north, west)
           console.log(`call to LLtoUTMUPS for upperLeft (${north}, ${west}): ${JSON.stringify(utmUps)}`)
           if (utmUps !== undefined) {
-              console.log(`call to LLtoUTMUPS for upperLeft (${north}, ${west}): ${JSON.stringify(utmups)}`)
+              console.log(`call to LLtoUTMUPS for upperLeft (${north}, ${west}): ${JSON.stringify(utmUps)}`)
 
               var utmUpsParts = this.formatUtmUps(utmUps)
               this.setUtmUpsUpperLeft(utmUpsParts, !this.isLocationTypeUtmUps())
@@ -526,7 +525,7 @@ define([
           var utmUps = this.LLtoUtmUps(result.south, result.east)
           if (utmUps !== undefined) {
             var utmUpsFormatted = this.formatUtmUps(utmUps)
-            this.setutmUpsLowerRight(utmUpsFormatted, true)
+            this.setUtmUpsLowerRight(utmUpsFormatted, true)
           }
         }
       }
@@ -597,7 +596,7 @@ define([
     isUtmUpsLatLonValid: function(lat) {
       return lat !== undefined && lat >= -90 && lat <= 90
       //debugger
-            console.log("function call: isutmupslatlonValid")
+            console.log("function call: isutmUpslatlonValid")
 
             console.log(`Lat: ${lat}`)
     },
@@ -880,7 +879,7 @@ define([
       utmUpsParts.northing -=
         zoneNumber !== 0 && northernHemisphere ? 0 : northingOffset
 
-      console.log(`calling utmupstoLL: ${JSON.stringify(utmUpsParts)}`)
+      console.log(`calling utmUpstoLL: ${JSON.stringify(utmUpsParts)}`)
 
       let results = {}
       try {
@@ -889,7 +888,7 @@ define([
 
       if (!this.isUtmUpsLatLonValid(results.lat)) {
         console.log(`returned: ${JSON.stringify(results)}`)
-              console.log(`past try catch in utmupstoll`)
+              console.log(`past try catch in utmUpstoll`)
 
               //debugger
         return undefined
