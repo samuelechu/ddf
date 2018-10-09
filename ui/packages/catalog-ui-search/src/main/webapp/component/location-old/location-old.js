@@ -28,6 +28,7 @@ define([
   const Direction = dmsUtils.Direction
 
   function convertToValid(key, model) {
+    //debugger
     if (
       key.mapSouth !== undefined &&
       (key.mapSouth >= key.mapNorth ||
@@ -147,6 +148,7 @@ define([
     },
 
     initialize: function() {
+      debugger
       this.listenTo(
         this,
         'change:north change:south change:east change:west',
@@ -215,16 +217,23 @@ define([
       }
     },
     notDrawing: function() {
+      console.log("function call: notDrawing")
+      //debugger
       this.drawing = false
       store.get('content').turnOffDrawing()
     },
 
     drawingOn: function() {
+      console.log("function call: drawingOn")
+      //debugger
       this.drawing = true
       store.get('content').turnOnDrawing(this)
     },
 
     repositionLatLonUtmUps: function(isDefined, parse, assign, clear) {
+      //debugger
+            console.log('repositionlatlonutm called')
+
       if (isDefined(this)) {
         var utmUpsParts = parse(this)
         if (utmUpsParts !== undefined) {
@@ -243,6 +252,8 @@ define([
     },
 
     repositionLatLon: function() {
+      //debugger
+      console.log("function call: repositionLatlon")
       if (this.get('usngbb') !== undefined) {
         var result = converter.USNGtoLL(this.get('usngbb'))
         var newResult = {}
@@ -254,6 +265,7 @@ define([
         this.set(newResult)
       }
 
+      console.log("calling function: repositionLatLonUtm for UpperLeft")
       this.repositionLatLonUtmUps(
         function(_this) {
           return _this.isUtmUpsUpperLeftDefined()
@@ -270,7 +282,10 @@ define([
         }
       )
 
+      console.log("calling function: repositionLatLonUtm for LowerRight")
+
       this.repositionLatLonUtmUps(
+      this.repositionLatLonUtm(
         function(_this) {
           return _this.isUtmUpsLowerRightDefined()
         },
@@ -288,6 +303,9 @@ define([
     },
 
     setLatLonUtmUps: function(result, isDefined, parse, assign, clear) {
+
+      console.log("function call: setLatLonUTM")
+            //debugger
       if (
         !(
           result.north !== undefined &&
@@ -311,6 +329,8 @@ define([
     },
 
     setLatLon: function() {
+      console.log("function call: setLatlon")
+      //debugger
       if (this.get('locationType') === 'latlon') {
         var result = {}
         result.north = this.get('mapNorth')
@@ -370,6 +390,8 @@ define([
     },
 
     setFilterBBox: function(model) {
+      console.log("function call: setfilterbbox ")
+      //debugger
       var north = parseFloat(model.get('north'))
       var south = parseFloat(model.get('south'))
       var west = parseFloat(model.get('west'))
@@ -384,6 +406,8 @@ define([
     },
 
     setBboxLatLon: function() {
+      //debugger
+
       var north = this.get('north'),
         south = this.get('south'),
         west = this.get('west'),
@@ -398,8 +422,11 @@ define([
         east !== undefined &&
         west !== undefined
       ) {
+        console.log('try of bboxlatlon')
         try {
+          console.log('doing converter.LLBboxtoUSNG')
           var usngsStr = converter.LLBboxtoUSNG(north, south, east, west)
+          console.log('converter.LLBboxtoUSNG successful')
 
           this.set('usngbb', usngsStr, {
             silent: this.get('locationType') !== 'usng',
@@ -413,6 +440,8 @@ define([
           let utmUps = this.LLtoUtmUps(north, west)
           console.log(`call to LLtoUTMUPS for upperLeft (${north}, ${west}): ${JSON.stringify(utmUps)}`)
           if (utmUps !== undefined) {
+              console.log(`call to LLtoUTMUPS for upperLeft (${north}, ${west}): ${JSON.stringify(utmups)}`)
+
               var utmUpsParts = this.formatUtmUps(utmUps)
               this.setUtmUpsUpperLeft(utmUpsParts, !this.isLocationTypeUtmUps())
           }
@@ -432,6 +461,8 @@ define([
     },
 
     setRadiusLatLon: function() {
+      //debugger
+      console.log("function call: setRadiusLatLon")
       var lat = this.get('lat'),
         lon = this.get('lon')
 
@@ -461,14 +492,20 @@ define([
     },
 
     setRadiusDmsLat: function() {
+      console.log("function call: setRadiusDmsLat")
+      //debugger
       this.setLatLonFromDms('dmsLat', 'dmsLatDirection', 'lat')
     },
 
     setRadiusDmsLon: function() {
+      console.log("function call: setRadiusDmsLon")
+      //debugger
       this.setLatLonFromDms('dmsLon', 'dmsLonDirection', 'lon')
     },
 
     setBboxUsng: function() {
+      console.log("function call: setBboxUsng")
+      //debugger
       if (this.get('locationType') === 'usng') {
         var result = converter.USNGtoLL(this.get('usngbb'))
         if (result !== undefined) {
@@ -496,6 +533,8 @@ define([
     },
 
     setBBox: function() {
+      //debugger
+      console.log('setBBox called')
       //we need these to always be inferred
       //as numeric values and never as strings
       var north = parseFloat(this.get('north'))
@@ -509,6 +548,7 @@ define([
         east !== undefined &&
         west !== undefined
       ) {
+        console.log('setBBox : this.set(\'bbox\'')
         this.set('bbox', [west, south, east, north].join(','), {
           silent:
             (this.get('locationType') === 'usng' ||
@@ -517,6 +557,7 @@ define([
         })
       }
       if (this.get('locationType') !== 'usng' && !this.isLocationTypeUtmUps()) {
+        console.log(`this.get('locationType') !== 'usng' && !this.isLocationTypeUtm(): ${this.get('locationType') !== 'usng' && !this.isLocationTypeUtmUps() }`)
         this.set({
           mapNorth: north,
           mapSouth: south,
@@ -527,6 +568,8 @@ define([
     },
 
     setRadiusUsng: function() {
+      //debugger
+      console.log("function call: setRadiusUsng")
       var usng = this.get('usng')
       if (usng !== undefined) {
         var result = converter.USNGtoLL(usng, true)
@@ -553,10 +596,16 @@ define([
 
     isUtmUpsLatLonValid: function(lat) {
       return lat !== undefined && lat >= -90 && lat <= 90
+      //debugger
+            console.log("function call: isutmupslatlonValid")
+
+            console.log(`Lat: ${lat}`)
     },
 
     // This method is called when the UTM/UPS point radius coordinates are changed by the user.
     setRadiusUtmUps: function() {
+        //debugger
+        console.log("setRadiusUtm")
       if (this.isLocationTypeUtmUps()) {
         if (this.isUtmUpsPointRadiusDefined()) {
           var utmUpsParts = this.parseUtmUpsPointRadius()
@@ -588,7 +637,11 @@ define([
 
     // This method is called when the UTM/UPS bounding box coordinates are changed by the user.
     setBboxUtmUps: function() {
+        console.log('setBBoxUtm called')
       if (this.isLocationTypeUtmUps()) {
+
+        console.log('setBBoxUtm: location is typeutm')
+
         var upperLeft = undefined
         var lowerRight = undefined
 
@@ -657,22 +710,30 @@ define([
     },
 
     setBboxDmsNorth: function() {
+      //debugger
+      console.log("function call: dmsnorth")
       this.setLatLonFromDms('dmsNorth', 'dmsNorthDirection', 'north')
     },
 
     setBboxDmsSouth: function() {
+      //debugger
       this.setLatLonFromDms('dmsSouth', 'dmsSouthDirection', 'south')
     },
 
     setBboxDmsEast: function() {
+      //debugger
+      console.log("function call: dmseast ")
       this.setLatLonFromDms('dmsEast', 'dmsEastDirection', 'east')
     },
 
     setBboxDmsWest: function() {
+      //debugger
       this.setLatLonFromDms('dmsWest', 'dmsWestDirection', 'west')
     },
 
     setBboxDmsFromMap: function() {
+      //debugger
+      console.log("function call: bboxdmsfrommap")
       const dmsNorth = dmsUtils.ddToDmsCoordinateLat(
         this.get('mapNorth'),
         dmsUtils.getSecondsPrecision(this.get('dmsNorth'))
@@ -707,6 +768,8 @@ define([
     },
 
     setRadiusDmsFromMap: function() {
+      console.log("function call: setradiusdmsfrommap")
+      //debugger
       const dmsLat = dmsUtils.ddToDmsCoordinateLat(
         this.get('lat'),
         dmsUtils.getSecondsPrecision(this.get('dmsLat'))
@@ -727,6 +790,8 @@ define([
     },
 
     setLatLonFromDms: function(dmsCoordinateKey, dmsDirectionKey, latLonKey) {
+
+      //debugger
       const coordinate = {}
       coordinate.coordinate = this.get(dmsCoordinateKey)
 
@@ -747,6 +812,8 @@ define([
     },
 
     handleLocationType: function() {
+      //debugger
+      console.log("function call: handleLocationType")
       if (this.get('locationType') === 'latlon') {
         this.set({
           north: this.get('mapNorth'),
@@ -768,7 +835,10 @@ define([
     //   zoneNumber : INTEGER (>=0 and <= 60)
     //   hemisphere : STRING (NORTHERN or SOUTHERN)
     LLtoUtmUps: function(lat, lon) {
+      //debugger
+      console.log("function call: LLtoUTMUPS ")
       if (isNaN(lat) || isNaN(lon)) {
+        console.log(`LLtoUTMUPS: isNaN == true`)
         return undefined
       }
       console.log(`LLtoUTMUPS: lat:${lat} lon:${lon}`)
@@ -781,6 +851,7 @@ define([
           : northingOffset
       console.log(`called LLtoUtmupsObject: ${JSON.stringify(utmUps)}`)
       utmUps.hemisphere = lat >= 0 ? 'NORTHERN' : 'SOUTHERN'
+
       return utmUps
     },
 
@@ -817,6 +888,10 @@ define([
       } catch (err) {}
 
       if (!this.isUtmUpsLatLonValid(results.lat)) {
+        console.log(`returned: ${JSON.stringify(results)}`)
+              console.log(`past try catch in utmupstoll`)
+
+              //debugger
         return undefined
       }
 
@@ -829,10 +904,14 @@ define([
         results.lon = results.lon - 360
       }
       return results
+      console.log(results)
     },
 
     // Return true if the current location type is UTM/UPS, otherwise false.
     isLocationTypeUtmUps: function() {
+      //debugger
+            console.log(`isLocationTypeUTM, this.get('locationType') = ${this.get('locationType')}`)
+
       return this.get('locationType') === utmUpsLocationType
     },
 
@@ -894,6 +973,8 @@ define([
     },
 
     clearUtmUpsPointRadius: function(silent) {
+     //debugger
+           console.log(`clearUTMPointRadius`)
       this.set('utmUpsEasting', undefined, { silent: silent })
       this.set('utmUpsNorthing', undefined, { silent: silent })
       this.set('utmUpsZone', 1, { silent: silent })
@@ -901,6 +982,9 @@ define([
     },
 
     clearUtmUpsUpperLeft: function(silent) {
+      console.log('Clear upper left')
+      console.log('Before Clear')
+      //debugger
       this.set(
         {
           utmUpsUpperLeftEasting: undefined,
@@ -913,6 +997,9 @@ define([
     },
 
     clearUtmUpsLowerRight: function(silent) {
+      console.log('Clear lower right')
+            console.log('before clear: ')
+            //debugger
       this.set('utmUpsLowerRightEasting', undefined, { silent: silent })
       this.set('utmUpsLowerRightNorthing', undefined, { silent: silent })
       this.set('utmUpsLowerRightZone', 1, { silent: silent })
@@ -924,6 +1011,9 @@ define([
     // representation of an integer in the range [0,60]. The hemisphereRaw parameters is a string
     // that should be 'Northern' or 'Southern'.
     parseUtmUps: function(eastingRaw, northingRaw, zoneRaw, hemisphereRaw) {
+     //debugger
+           console.log(`ParseUTMUPS: ${eastingRaw}, ${northingRaw}, ${zoneRaw}, ${hemisphereRaw}`)
+
       var easting = parseFloat(eastingRaw)
       var northing = parseFloat(northingRaw)
       var zone = parseInt(zoneRaw)
