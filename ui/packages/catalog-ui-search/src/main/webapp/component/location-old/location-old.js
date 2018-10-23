@@ -689,7 +689,7 @@ define([
       this.set(utmUpsResult)
 
       const { lat, lon } = utmUpsResult
-      if (!isLatLonValid(lat, lon) || isInUpsSpace(lat, lon)) {
+      if (!this.isLatLonValid(lat, lon) || this.isInUpsSpace(lat, lon)) {
         this.set({ usng: undefined })
         return
       }
@@ -772,7 +772,7 @@ define([
       const lat = (upperLeft.lat + lowerRight.lat) / 2
       const lon = (upperLeft.lon + lowerRight.lon) / 2
 
-      if (!isLatLonValid(lat, lon) || isInUpsSpace(lat, lon)) {
+      if (!this.isLatLonValid(lat, lon) || this.isInUpsSpace(lat, lon)) {
         this.set('usngbb', undefined)
         return
       }
