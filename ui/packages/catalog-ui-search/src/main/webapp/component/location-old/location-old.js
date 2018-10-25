@@ -417,27 +417,18 @@ define([
 
     setBboxLatLon: function() {
       //debugger
-      const north = this.get('north'),
-        south = this.get('south'),
-        west = this.get('west'),
-        east = this.get('east')
+      const north = parseFloat(this.get('north')),
+        south = parseFloat(this.get('south')),
+        west = parseFloat(this.get('west')),
+        east = parseFloat(this.get('east'))
 
       console.log(
         `setBBoxLatLon called ${JSON.stringify({ north, south, west, east })}`
       )
       if (
-        north === undefined ||
-        south === undefined ||
-        east === undefined ||
-        west === undefined
+        !this.isLatLonValid(north, west) ||
+        !this.isLatLonValid(south, east)
       ) {
-        return
-      }
-
-      const lat = (parseFloat(north) + parseFloat(south)) / 2
-      const lon = (parseFloat(east) + parseFloat(west)) / 2
-
-      if (!this.isLatLonValid(lat, lon)) {
         return
       }
 
@@ -467,6 +458,8 @@ define([
         this.repositionLatLon()
       }
 
+      const lat = (north + south) / 2
+      const lon = (east + west) / 2
       if (this.isInUpsSpace(lat, lon)) {
         this.set('usngbb', undefined)
         return
@@ -640,6 +633,8 @@ define([
     isLatLonValid: function(lat, lon) {
       //debugger
       console.log('function call: isLatLonValid')
+      lat = parseFloat(lat)
+      lon = parseFloat(lon)
 
       console.log(
         `isLatLonValid returned: ${lat !== undefined &&
@@ -665,6 +660,8 @@ define([
     },
 
     isInUpsSpace: function(lat, lon) {
+      lat = parseFloat(lat)
+      lon = parseFloat(lon)
 
       console.log(
         `isInUPSSpace lat: ${lat} lon: ${lon} result: ${this.isLatLonValid(
@@ -675,8 +672,8 @@ define([
       )
 
       return (
-        (this.isLatLonValid(lat, lon) && (lat > 84 && lat < 90)) ||
-        (lat < -80 && lat > -90)
+        this.isLatLonValid(lat, lon) &&
+        ((lat > 84 && lat < 90) || (lat < -80 && lat > -90))
       )
     },
 
@@ -934,6 +931,8 @@ define([
     //   hemisphere : STRING (NORTHERN or SOUTHERN)
     LLtoUtmUps: function(lat, lon) {
       //debugger
+      lat = parseFloat(lat)
+      lon = parseFloat(lon)
       console.log('function call: LLtoUTMUPS ')
       if (!this.isLatLonValid(lat, lon)) {
         console.log(`LLtoUTMUPS: isNaN == true`)
@@ -988,24 +987,24 @@ define([
       }
 
       console.log(`calling utmupstoLL: ${JSON.stringify(utmUpsParts)}`)
-      let results = converter.UTMUPStoLL(utmUpsParts)
+      let { lat, lon } = converter.UTMUPStoLL(utmUpsParts)
 
       //debugger
-      if (!this.isLatLonValid(results.lat, results.lon)) {
+      if (!this.isLatLonValid(lat, lon)) {
         return undefined
       }
 
-      results.lon = results.lon % 360
+      lon = lon % 360
 
-      if (results.lon < -180) {
-        results.lon = results.lon + 360
+      if (lon < -180) {
+        lon = lon + 360
       }
-      if (results.lon > 180) {
-        results.lon = results.lon - 360
+      if (lon > 180) {
+        lon = lon - 360
       }
-      return results
 
       console.log(`returned: ${JSON.stringify({ lat, lon })}`)
+      return { lat, lon }
     },
 
     // Return true if the current location type is UTM/UPS, otherwise false.
