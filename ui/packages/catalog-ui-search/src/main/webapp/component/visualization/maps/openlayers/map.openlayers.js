@@ -9,7 +9,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
-/*global require, window*/
+/* global require, window */
 
 var $ = require('jquery')
 var _ = require('underscore')
@@ -212,11 +212,7 @@ module.exports = function OpenlayersMap(
       })
     },
     zoomOut: function(opts, next) {
-      if (map.getView().getZoom() > 6) {
-        map.getView().animate({ zoom: 6, duration: 500, ...opts }, next)
-      } else {
-        next()
-      }
+      next()
     },
     zoomToSelected: function() {
       if (selectionInterface.getSelectedResults().length === 1) {
@@ -609,6 +605,17 @@ module.exports = function OpenlayersMap(
 
       feature.setId(locationModel.cid)
 
+      const styles = [
+        new Openlayers.style.Style({
+          stroke: new Openlayers.style.Stroke({
+            color: locationModel.get('color') || defaultColor,
+            width: 4,
+          }),
+        }),
+      ]
+
+      feature.setStyle(styles)
+
       return this.createVectorLayer(locationModel, feature)
     },
     showMultiPolygonShape: function(locationModel) {
@@ -625,6 +632,17 @@ module.exports = function OpenlayersMap(
       })
 
       feature.setId(locationModel.cid)
+
+      const styles = [
+        new Openlayers.style.Style({
+          stroke: new Openlayers.style.Stroke({
+            color: locationModel.get('color') || defaultColor,
+            width: 4,
+          }),
+        }),
+      ]
+
+      feature.setStyle(styles)
 
       return this.createVectorLayer(locationModel, feature)
     },
