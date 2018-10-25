@@ -151,7 +151,7 @@ define([
     },
 
     initialize: function() {
-      debugger
+      //debugger
       this.listenTo(
         this,
         'change:north change:south change:east change:west',
@@ -442,9 +442,9 @@ define([
       }
 
       console.log(
-        `call to LLtoUTMUPS for upperLeft (${north}, ${west}): ${JSON.stringify(
+        `call to LLtoUTMUPS for upperLeft (North:${north}, West:${west}): ${JSON.stringify(
           utmUps
-        )}`
+        )}, North is of type : ${typeof north} West is of type : ${typeof west}`
       )
       let utmUps = this.LLtoUtmUps(north, west)
       if (utmUps !== undefined) {
@@ -639,7 +639,18 @@ define([
 
     isLatLonValid: function(lat, lon) {
       //debugger
-      console.log('function call: isutmupslatlonValid')
+      console.log('function call: isLatLonValid')
+
+      console.log(
+        `isLatLonValid returned: ${lat !== undefined &&
+          lon !== undefined &&
+          !isNaN(lat) &&
+          !isNaN(lon) &&
+          lat > -90 &&
+          lat < 90 &&
+          lon > -180 &&
+          lon < 180}`
+      )
 
       return (
         lat !== undefined &&
@@ -654,6 +665,15 @@ define([
     },
 
     isInUpsSpace: function(lat, lon) {
+
+      console.log(
+        `isInUPSSpace lat: ${lat} lon: ${lon} result: ${this.isLatLonValid(
+          lat,
+          lon
+        ) &&
+          ((lat > 84 && lat < 90) || (lat < -80 && lat > -90))}`
+      )
+
       return (
         (this.isLatLonValid(lat, lon) && (lat > 84 && lat < 90)) ||
         (lat < -80 && lat > -90)
@@ -970,7 +990,6 @@ define([
       console.log(`calling utmupstoLL: ${JSON.stringify(utmUpsParts)}`)
       let results = converter.UTMUPStoLL(utmUpsParts)
 
-      console.log(`returned: ${JSON.stringify(results)}`)
       //debugger
       if (!this.isLatLonValid(results.lat, results.lon)) {
         return undefined
@@ -985,7 +1004,8 @@ define([
         results.lon = results.lon - 360
       }
       return results
-      console.log(results)
+
+      console.log(`returned: ${JSON.stringify({ lat, lon })}`)
     },
 
     // Return true if the current location type is UTM/UPS, otherwise false.
