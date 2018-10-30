@@ -22,12 +22,13 @@ var minimumDifference = 0.0001
 var minimumBuffer = 0.000001
 var utmUpsLocationType = 'utmUps'
 // offset used by utmUps for southern hemisphere
+const utmUpsBoundaryNorth = 84
+const utmUpsBoundarySouth = -80
 var northingOffset = 10000000
 var usngPrecision = 6
 const Direction = dmsUtils.Direction
 
 function convertToValid(key, model) {
-  //debugger
   if (
     key.mapSouth !== undefined &&
     (key.mapSouth >= key.mapNorth ||
@@ -150,7 +151,6 @@ module.exports = Backbone.AssociatedModel.extend({
   },
 
   initialize: function() {
-    //debugger
     this.listenTo(
       this,
       'change:north change:south change:east change:west',
@@ -217,7 +217,6 @@ module.exports = Backbone.AssociatedModel.extend({
   },
   notDrawing: function() {
     console.log('function call: notDrawing')
-    //debugger
     this.set('locationType', this.get('prevLocationType'))
     this.drawing = false
     store.get('content').turnOffDrawing()
@@ -225,7 +224,6 @@ module.exports = Backbone.AssociatedModel.extend({
 
   drawingOn: function() {
     console.log('function call: drawingOn')
-    //debugger
     const locationType = this.get('locationType')
     this.set('prevLocationType', locationType)
     if (locationType === 'utmUps') {
@@ -237,7 +235,6 @@ module.exports = Backbone.AssociatedModel.extend({
   },
 
   repositionLatLonUtmUps: function(isDefined, parse, assign, clear) {
-    //debugger
     console.log('repositionlatlonutm called')
     if (isDefined(this)) {
       var utmUpsParts = parse(this)
@@ -257,7 +254,6 @@ module.exports = Backbone.AssociatedModel.extend({
   },
 
   repositionLatLon: function() {
-    //debugger
     console.log('function call: repositionLatlon')
     if (this.get('usngbb') !== undefined) {
       try {
@@ -309,7 +305,6 @@ module.exports = Backbone.AssociatedModel.extend({
 
   setLatLonUtmUps: function(result, isDefined, parse, assign, clear) {
     console.log('function call: setLatLonUTM')
-    //debugger
     if (
       !(
         result.north !== undefined &&
@@ -334,7 +329,6 @@ module.exports = Backbone.AssociatedModel.extend({
 
   setLatLon: function() {
     console.log('function call: setLatlon')
-    //debugger
     if (this.get('locationType') === 'latlon') {
       var result = {}
       result.north = this.get('mapNorth')
@@ -397,7 +391,6 @@ module.exports = Backbone.AssociatedModel.extend({
 
   setFilterBBox: function(model) {
     console.log('function call: setfilterbbox ')
-    //debugger
     var north = parseFloat(model.get('north'))
     var south = parseFloat(model.get('south'))
     var west = parseFloat(model.get('west'))
@@ -412,7 +405,6 @@ module.exports = Backbone.AssociatedModel.extend({
   },
 
   setBboxLatLon: function() {
-    //debugger
     const north = parseFloat(this.get('north')),
       south = parseFloat(this.get('south')),
       west = parseFloat(this.get('west')),
@@ -471,7 +463,6 @@ module.exports = Backbone.AssociatedModel.extend({
   },
 
   setRadiusLatLon: function() {
-    //debugger
     console.log('function call: setRadiusLatLon')
     var lat = this.get('lat'),
       lon = this.get('lon')
@@ -505,19 +496,16 @@ module.exports = Backbone.AssociatedModel.extend({
 
   setRadiusDmsLat: function() {
     console.log('function call: setRadiusDmsLat')
-    //debugger
     this.setLatLonFromDms('dmsLat', 'dmsLatDirection', 'lat')
   },
 
   setRadiusDmsLon: function() {
     console.log('function call: setRadiusDmsLon')
-    //debugger
     this.setLatLonFromDms('dmsLon', 'dmsLonDirection', 'lon')
   },
 
   setBboxUsng: function() {
     console.log('function call: setBboxUsng')
-    //debugger
     if (this.get('locationType') !== 'usng') {
       return
     }
@@ -553,7 +541,6 @@ module.exports = Backbone.AssociatedModel.extend({
   },
 
   setBBox: function() {
-    //debugger
     console.log('setBBox called')
     //we need these to always be inferred
     //as numeric values and never as strings
@@ -592,7 +579,6 @@ module.exports = Backbone.AssociatedModel.extend({
   },
 
   setRadiusUsng: function() {
-    //debugger
     console.log('function call: setRadiusUsng')
     var usng = this.get('usng')
     if (usng === undefined) {
@@ -624,32 +610,10 @@ module.exports = Backbone.AssociatedModel.extend({
   },
 
   isLatLonValid: function(lat, lon) {
-    //debugger
     console.log('function call: isLatLonValid')
     lat = parseFloat(lat)
     lon = parseFloat(lon)
-
-    console.log(
-      `isLatLonValid returned: ${lat !== undefined &&
-        lon !== undefined &&
-        !isNaN(lat) &&
-        !isNaN(lon) &&
-        lat > -90 &&
-        lat < 90 &&
-        lon > -180 &&
-        lon < 180}`
-    )
-
-    return (
-      lat !== undefined &&
-      lon !== undefined &&
-      !isNaN(lat) &&
-      !isNaN(lon) &&
-      lat > -90 &&
-      lat < 90 &&
-      lon > -180 &&
-      lon < 180
-    )
+    return lat > -90 && lat < 90 && lon > -180 && lon < 180
   },
 
   isInUpsSpace: function(lat, lon) {
@@ -661,18 +625,17 @@ module.exports = Backbone.AssociatedModel.extend({
         lat,
         lon
       ) &&
-        ((lat > 84 && lat < 90) || (lat < -80 && lat > -90))}`
+        (lat < utmUpsBoundarySouth || lat > utmUpsBoundaryNorth)}`
     )
 
     return (
       this.isLatLonValid(lat, lon) &&
-      ((lat > 84 && lat < 90) || (lat < -80 && lat > -90))
+      (lat < utmUpsBoundarySouth || lat > utmUpsBoundaryNorth)
     )
   },
 
   // This method is called when the UTM/UPS point radius coordinates are changed by the user.
   setRadiusUtmUps: function() {
-    //debugger
     console.log('setRadiusUtmUps')
     if (!this.isLocationTypeUtmUps() && !this.isUtmUpsPointRadiusDefined()) {
       return
@@ -711,7 +674,6 @@ module.exports = Backbone.AssociatedModel.extend({
 
   // This method is called when the UTM/UPS bounding box coordinates are changed by the user.
   setBboxUtmUps: function() {
-    //debugger
     console.log('setBBoxUtm called')
     if (!this.isLocationTypeUtmUps()) {
       return
@@ -799,29 +761,24 @@ module.exports = Backbone.AssociatedModel.extend({
   },
 
   setBboxDmsNorth: function() {
-    //debugger
     console.log('function call: dmsnorth')
     this.setLatLonFromDms('dmsNorth', 'dmsNorthDirection', 'north')
   },
 
   setBboxDmsSouth: function() {
-    //debugger
     this.setLatLonFromDms('dmsSouth', 'dmsSouthDirection', 'south')
   },
 
   setBboxDmsEast: function() {
-    //debugger
     console.log('function call: dmseast ')
     this.setLatLonFromDms('dmsEast', 'dmsEastDirection', 'east')
   },
 
   setBboxDmsWest: function() {
-    //debugger
     this.setLatLonFromDms('dmsWest', 'dmsWestDirection', 'west')
   },
 
   setBboxDmsFromMap: function() {
-    //debugger
     console.log('function call: bboxdmsfrommap')
     const dmsNorth = dmsUtils.ddToDmsCoordinateLat(
       this.get('mapNorth'),
@@ -856,7 +813,6 @@ module.exports = Backbone.AssociatedModel.extend({
 
   setRadiusDmsFromMap: function() {
     console.log('function call: setradiusdmsfrommap')
-    //debugger
     const dmsLat = dmsUtils.ddToDmsCoordinateLat(
       this.get('lat'),
       dmsUtils.getSecondsPrecision(this.get('dmsLat'))
@@ -877,7 +833,6 @@ module.exports = Backbone.AssociatedModel.extend({
   },
 
   setLatLonFromDms: function(dmsCoordinateKey, dmsDirectionKey, latLonKey) {
-    //debugger
     const coordinate = {}
     coordinate.coordinate = this.get(dmsCoordinateKey)
 
@@ -898,7 +853,6 @@ module.exports = Backbone.AssociatedModel.extend({
   },
 
   handleLocationType: function() {
-    //debugger
     console.log('function call: handleLocationType')
     if (this.get('locationType') === 'latlon') {
       this.set({
@@ -921,7 +875,6 @@ module.exports = Backbone.AssociatedModel.extend({
   //   zoneNumber : INTEGER (>=0 and <= 60)
   //   hemisphere : STRING (NORTHERN or SOUTHERN)
   LLtoUtmUps: function(lat, lon) {
-    //debugger
     lat = parseFloat(lat)
     lon = parseFloat(lon)
     console.log('function call: LLtoUTMUPS ')
@@ -976,14 +929,9 @@ module.exports = Backbone.AssociatedModel.extend({
 
     console.log(`calling utmupstoLL: ${JSON.stringify(utmUpsParts)}`)
     let { lat, lon } = converter.UTMUPStoLL(utmUpsParts)
-
-    //debugger
-    if (!this.isLatLonValid(lat, lon)) {
-      return undefined
-    }
+    console.log(`returned: ${JSON.stringify({ lat, lon })}`)
 
     lon = lon % 360
-
     if (lon < -180) {
       lon = lon + 360
     }
@@ -991,13 +939,11 @@ module.exports = Backbone.AssociatedModel.extend({
       lon = lon - 360
     }
 
-    console.log(`returned: ${JSON.stringify({ lat, lon })}`)
-    return { lat, lon }
+    return this.isLatLonValid(lat, lon) ? { lat, lon } : undefined
   },
 
   // Return true if the current location type is UTM/UPS, otherwise false.
   isLocationTypeUtmUps: function() {
-    //debugger
     console.log(
       `isLocationTypeUTMUPS, this.get('locationType') = ${this.get(
         'locationType'
@@ -1012,7 +958,6 @@ module.exports = Backbone.AssociatedModel.extend({
   //   silent       : BOOLEAN (true if events should be generated)
   setUtmUpsUpperLeft: function(utmUpsFormatted, silent) {
     console.log(`setUTMUpperLeft : ${JSON.stringify(utmUpsFormatted)}`)
-    //debugger
     this.set('utmUpsUpperLeftEasting', utmUpsFormatted.easting, {
       silent: silent,
     })
@@ -1033,7 +978,6 @@ module.exports = Backbone.AssociatedModel.extend({
   //   silent       : BOOLEAN (true if events should be generated)
   setUtmUpsLowerRight: function(utmUpsFormatted, silent) {
     console.log(`setUTMlowerRight : ${JSON.stringify(utmUpsFormatted)}`)
-    //debugger
     this.set('utmUpsLowerRightEasting', utmUpsFormatted.easting, {
       silent: silent,
     })
@@ -1053,7 +997,6 @@ module.exports = Backbone.AssociatedModel.extend({
   //   utmUpsFormatted : output from the method 'formatUtmUps'
   //   silent       : BOOLEAN (true if events should be generated)
   setUtmUpsPointRadius: function(utmUpsFormatted, silent) {
-    //debugger
     console.log(`setUTMPointRadius: ${JSON.stringify(utmUpsFormatted)}`)
     this.set('utmUpsEasting', utmUpsFormatted.easting, { silent: silent })
     this.set('utmUpsNorthing', utmUpsFormatted.northing, { silent: silent })
@@ -1064,7 +1007,6 @@ module.exports = Backbone.AssociatedModel.extend({
   },
 
   clearUtmUpsPointRadius: function(silent) {
-    //debugger
     console.log(`clearUTMPointRadius`)
     this.set('utmUpsEasting', undefined, { silent: silent })
     this.set('utmUpsNorthing', undefined, { silent: silent })
@@ -1076,7 +1018,6 @@ module.exports = Backbone.AssociatedModel.extend({
     console.log('Clear upper left')
     console.log('Before Clear')
     this.parseUtmUpsUpperLeft()
-    //debugger
     this.set(
       {
         utmUpsUpperLeftEasting: undefined,
@@ -1092,7 +1033,6 @@ module.exports = Backbone.AssociatedModel.extend({
     console.log('Clear lower right')
     console.log('before clear: ')
     this.parseUtmUpsLowerRight()
-    //debugger
     this.set('utmUpsLowerRightEasting', undefined, { silent: silent })
     this.set('utmUpsLowerRightNorthing', undefined, { silent: silent })
     this.set('utmUpsLowerRightZone', 1, { silent: silent })
@@ -1104,7 +1044,6 @@ module.exports = Backbone.AssociatedModel.extend({
   // representation of an integer in the range [0,60]. The hemisphereRaw parameters is a string
   // that should be 'Northern' or 'Southern'.
   parseUtmUps: function(eastingRaw, northingRaw, zoneRaw, hemisphereRaw) {
-    //debugger
     console.log(
       `ParseUTMUPS: ${eastingRaw}, ${northingRaw}, ${zoneRaw}, ${hemisphereRaw}`
     )
@@ -1139,7 +1078,6 @@ module.exports = Backbone.AssociatedModel.extend({
 
   // Format the internal representation of UTM/UPS coordinates into the form expected by the model.
   formatUtmUps: function(utmUps) {
-    //debugger
     console.log(`formatUTMUPS ${JSON.stringify(utmUps)}`)
     return {
       easting: utmUps.easting,
@@ -1163,7 +1101,6 @@ module.exports = Backbone.AssociatedModel.extend({
         this.get('utmUpsUpperLeftZone') !== undefined &&
         this.get('utmUpsUpperLeftHemisphere') !== undefined}`
     )
-    //debugger
     return (
       this.get('utmUpsUpperLeftEasting') !== undefined &&
       this.get('utmUpsUpperLeftNorthing') !== undefined &&
@@ -1174,7 +1111,6 @@ module.exports = Backbone.AssociatedModel.extend({
 
   // Return true if all of the UTM/UPS lower-right model fields are defined. Otherwise, false.
   isUtmUpsLowerRightDefined: function() {
-    //debugger
     console.log(
       `isutmUpsLowerRightDefined: ${this.get('utmUpsLowerRightEasting') !==
         undefined &&
@@ -1192,7 +1128,6 @@ module.exports = Backbone.AssociatedModel.extend({
 
   // Return true if all of the UTM/UPS point radius model fields are defined. Otherwise, false.
   isUtmUpsPointRadiusDefined: function() {
-    //debugger
     console.log(
       `isUtmPointRadiusDefined: ${this.get('utmUpsEasting') !== undefined &&
         this.get('utmUpsNorthing') !== undefined &&
@@ -1223,7 +1158,6 @@ module.exports = Backbone.AssociatedModel.extend({
 
   // Get the UTM/UPS Lower-Right bounding box fields in the internal format. See 'parseUtmUps'.
   parseUtmUpsLowerRight: function() {
-    //debugger
     console.log(`parse BBox Lower Right ${this.get('utmUpsLowerRightEasting')}
             ${this.get('utmUpsLowerRightNorthing')}
             ${this.get('utmUpsLowerRightZone')}
@@ -1238,7 +1172,6 @@ module.exports = Backbone.AssociatedModel.extend({
 
   // Get the UTM/UPS point radius fields in the internal format. See 'parseUtmUps'.
   parseUtmUpsPointRadius: function() {
-    //debugger
     return this.parseUtmUps(
       this.get('utmUpsEasting'),
       this.get('utmUpsNorthing'),
