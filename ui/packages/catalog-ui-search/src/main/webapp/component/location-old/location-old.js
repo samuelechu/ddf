@@ -217,7 +217,11 @@ module.exports = Backbone.AssociatedModel.extend({
   },
   notDrawing: function() {
     console.log('function call: notDrawing')
-    this.set('locationType', this.get('prevLocationType'))
+    const prevLocationType = this.get('prevLocationType')
+    if (prevLocationType === 'utmUps') {
+      this.set('prevLocationType', '')
+      this.set('locationType', 'utmUps')
+    }
     this.drawing = false
     store.get('content').turnOffDrawing()
   },
@@ -225,11 +229,10 @@ module.exports = Backbone.AssociatedModel.extend({
   drawingOn: function() {
     console.log('function call: drawingOn')
     const locationType = this.get('locationType')
-    this.set('prevLocationType', locationType)
     if (locationType === 'utmUps') {
+      this.set('prevLocationType', 'utmUps')
       this.set('locationType', 'latlon')
     }
-
     this.drawing = true
     store.get('content').turnOnDrawing(this)
   },
