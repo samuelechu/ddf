@@ -1,4 +1,3 @@
-{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,11 +9,4 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-<div class="editor-properties">
-    <div class="property-persistence">
-    </div>
-
-    <div class="property-expiration">
-    </div>
-</div>
+export { default } from './alert-settings'

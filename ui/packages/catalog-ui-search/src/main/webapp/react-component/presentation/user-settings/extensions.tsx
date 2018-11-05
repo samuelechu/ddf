@@ -10,35 +10,23 @@
  *
  **/
 import * as React from 'react'
+import {
+  BaseUserSettings,
+  BaseProps,
+  withExtensions,
+  SettingsComponent,
+} from './index'
+import { Subtract } from '../../../typescript'
 
-interface Props {
-  help: string
-  icon?: string
-  iconText?: string
-  description: string
-  onClick: () => void
+const extendUserSettings = (extensions: SettingsComponent[]) => {
+  return class ExtensionContainer extends React.Component<
+    Subtract<BaseProps, withExtensions>,
+    {}
+  > {
+    render() {
+      return <BaseUserSettings extensions={extensions} {...this.props} />
+    }
+  }
 }
 
-const WorkspaceTemplate = (props: Props) => {
-  const { help, icon, iconText, description, onClick } = props
-  return (
-    <div
-      className="home-templates-choices-choice"
-      onClick={onClick}
-      data-help={help}
-    >
-      <div
-        className={`${icon} home-templates-choices-choice-preview ${
-          icon ? 'home-templates-choices-choice-preview-icon' : ''
-        }`}
-      >
-        {iconText}
-      </div>
-      <div className="home-templates-choices-choice-description">
-        {description}
-      </div>
-    </div>
-  )
-}
-
-export default WorkspaceTemplate
+export default extendUserSettings

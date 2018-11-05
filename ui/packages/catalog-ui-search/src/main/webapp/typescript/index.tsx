@@ -1,4 +1,3 @@
-{{!--
 /**
  * Copyright (c) Codice Foundation
  *
@@ -10,9 +9,5 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  *
  **/
- --}}
-<div class="interaction-icon fa fa-file">
-</div>
-<div class="interaction-text">
-    Result Forms
-</div>
+export { default as Omit } from './omit'
+export { default as Subtract } from './subtract'
