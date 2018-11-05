@@ -558,7 +558,9 @@ module.exports = Backbone.AssociatedModel.extend({
       east !== undefined &&
       west !== undefined
     ) {
-      console.log("setBBox : this.set('bbox'")
+      console.log(
+        `setBBox : this.set('bbox', [west: ${west}, south: ${south}, east: ${east}, north: ${north}])`
+      )
       this.set('bbox', [west, south, east, north].join(','), {
         silent:
           (this.get('locationType') === 'usng' ||
