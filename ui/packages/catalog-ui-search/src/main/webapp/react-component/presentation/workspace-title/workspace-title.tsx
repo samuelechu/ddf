@@ -76,7 +76,7 @@ const Root = styled<{}, 'div'>('div')`
     height: calc(100% - 4px);
     min-width: 1px;
     background: ${props => props.theme.backgroundNavigation} !important;
-    border: none !important;
+    border: 3px solid rgba(255, 255, 255, 0.1);
     font-size: ${props => props.theme.largeFontSize};
     overflow: hidden;
     text-overflow: ellipsis;
@@ -102,6 +102,10 @@ const Root = styled<{}, 'div'>('div')`
   input:focus + .title-display + .title-saved {
     padding-right: 5px;
     transition-delay: 0s;
+  }
+
+  input:hover {
+    text-decoration: underline;
   }
 
   ${StyledUnsavedIndicator /* sc-selector */} {

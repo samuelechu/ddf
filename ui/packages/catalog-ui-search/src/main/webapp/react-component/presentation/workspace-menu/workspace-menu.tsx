@@ -19,6 +19,7 @@ import SaveButton from '../save-button'
 import WorkspaceTitle from '../workspace-title'
 import Dropdown from '../dropdown'
 import NavigationBehavior from '../navigation-behavior'
+import { Button, buttonTypeEnum } from '../../presentation/button'
 
 type Props = {
   currentWorkspace: Backbone.Model
@@ -27,22 +28,27 @@ type Props = {
   product: string
 }
 
+const SearchButton = styled(Button)`
+  padding-left: ${({ theme }) => theme.minimumSpacing};
+  padding-right: ${({ theme }) => theme.mediumSpacing};
+  background-color: ${({ theme }) => theme.primaryColor};
+`
+
 const StyledSaveButton = styled.div`
   display: block;
 `
 
 const StyledWorkspaceTitle = styled.div`
   display: block;
+  padding-top: ${({ theme }) => theme.minimumSpacing};
+  padding-bottom: ${({ theme }) => theme.minimumSpacing};
 `
 
 const StyledDropdown = styled(Dropdown)`
-  height: 100%;
-  line-height: inherit;
+  display: inline-block;
 `
 
 const Icon = styled.span`
-  display: inline-block;
-  text-align: right;
   width: ${props => props.theme.minimumButtonSize};
 `
 
@@ -54,6 +60,7 @@ const Root = styled<{ saved: boolean }, 'div'>('div')`
   white-space: nowrap;
   display: flex;
   justify-content: flex-start;
+  align-items: center;
 
   > ${StyledWorkspaceTitle /* sc-selector*/}, > .content-adhoc,
   > .content-interactions,
@@ -114,21 +121,23 @@ const render = (props: Props) => {
       >
         <span className="fa fa-ellipsis-v" />
       </StyledDropdown>
-      <StyledDropdown
-        className="content-adhoc"
-        content={() => (
-          <MarionetteRegionContainer
-            view={QueryAddView}
-            viewOptions={() => {
-              return {
-                model: currentWorkspace,
-              }
-            }}
-          />
-        )}
-      >
-        <Icon className="fa fa-search" /> Search {branding} {product}
-      </StyledDropdown>
+      <SearchButton buttonType={buttonTypeEnum.primary}>
+        <StyledDropdown
+          className="content-adhoc"
+          content={() => (
+            <MarionetteRegionContainer
+              view={QueryAddView}
+              viewOptions={() => {
+                return {
+                  model: currentWorkspace,
+                }
+              }}
+            />
+          )}
+        >
+          <Icon className="fa fa-search fa-fw" /> Search {branding} {product}
+        </StyledDropdown>
+      </SearchButton>
     </Root>
   )
 }
