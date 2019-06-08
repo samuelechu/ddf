@@ -12,13 +12,13 @@
 import * as React from 'react'
 import styled from '../../styles/styled-components'
 import { hot } from 'react-hot-loader'
-import WorkspaceInteractions from '../../container/workspace-interactions'
+// import WorkspaceInteractions from '../../container/workspace-interactions'
 const QueryAddView = require('../../../component/query-add/query-add.view.js')
 import MarionetteRegionContainer from '../../container/marionette-region-container'
-import SaveButton from '../save-button'
+// import SaveButton from '../save-button'
 import WorkspaceTitle from '../workspace-title'
 import Dropdown from '../dropdown'
-import NavigationBehavior from '../navigation-behavior'
+// import NavigationBehavior from '../navigation-behavior'
 import { Button, buttonTypeEnum } from '../../presentation/button'
 
 type Props = {
@@ -39,9 +39,11 @@ const StyledSaveButton = styled.div`
 `
 
 const StyledWorkspaceTitle = styled.div`
-  display: block;
-  padding-top: ${({ theme }) => theme.minimumSpacing};
-  padding-bottom: ${({ theme }) => theme.minimumSpacing};
+  display:flex;
+  align-items: center;
+  margin-right: ${({ theme }) => theme.largeSpacing}
+  /* padding-top: ${({ theme }) => theme.minimumSpacing};
+  padding-bottom: ${({ theme }) => theme.minimumSpacing}; */
 `
 
 const StyledDropdown = styled(Dropdown)`
@@ -101,17 +103,18 @@ const render = (props: Props) => {
           onChange={(title: string) => {
             currentWorkspace.set('title', title)
           }}
+          currentWorkspace={currentWorkspace}
         />
       </StyledWorkspaceTitle>
-      <StyledSaveButton>
+      {/* <StyledSaveButton>
         <SaveButton
           isSaved={saved}
           onClick={() => {
             currentWorkspace.save()
           }}
         />
-      </StyledSaveButton>
-      <StyledDropdown
+      </StyledSaveButton> */}
+      {/* <StyledDropdown
         className="content-interactions"
         content={() => (
           <NavigationBehavior>
@@ -120,7 +123,7 @@ const render = (props: Props) => {
         )}
       >
         <span className="fa fa-ellipsis-v" />
-      </StyledDropdown>
+      </StyledDropdown> */}
       <SearchButton buttonType={buttonTypeEnum.primary}>
         <StyledDropdown
           className="content-adhoc"
