@@ -12,13 +12,10 @@
 import * as React from 'react'
 import styled from '../../styles/styled-components'
 import { hot } from 'react-hot-loader'
-// import WorkspaceInteractions from '../../container/workspace-interactions'
 const QueryAddView = require('../../../component/query-add/query-add.view.js')
 import MarionetteRegionContainer from '../../container/marionette-region-container'
-// import SaveButton from '../save-button'
 import WorkspaceTitle from '../workspace-title'
 import Dropdown from '../dropdown'
-// import NavigationBehavior from '../navigation-behavior'
 import { Button, buttonTypeEnum } from '../../presentation/button'
 
 type Props = {
@@ -28,103 +25,57 @@ type Props = {
   product: string
 }
 
-const SearchButton = styled(Button)`
+const Root = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  white-space: nowrap;
+`
+
+const StyledSearchButton = styled(Button)`
   padding-left: ${({ theme }) => theme.minimumSpacing};
   padding-right: ${({ theme }) => theme.mediumSpacing};
   background-color: ${({ theme }) => theme.primaryColor};
 `
 
-const StyledSaveButton = styled.div`
-  display: block;
-`
-
 const StyledWorkspaceTitle = styled.div`
-  display:flex;
+  display: flex;
   align-items: center;
-  margin-right: ${({ theme }) => theme.largeSpacing}
-  /* padding-top: ${({ theme }) => theme.minimumSpacing};
-  padding-bottom: ${({ theme }) => theme.minimumSpacing}; */
+  margin-right: ${({ theme }) => theme.largeSpacing};
 `
 
 const StyledDropdown = styled(Dropdown)`
   display: inline-block;
 `
 
-const Icon = styled.span`
+const StyledIcon = styled.span`
   width: ${props => props.theme.minimumButtonSize};
-`
-
-const Root = styled<{ saved: boolean }, 'div'>('div')`
-  width: 100%;
-  overflow: hidden;
-  position: relative;
-  height: 100%;
-  white-space: nowrap;
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-
-  > ${StyledWorkspaceTitle /* sc-selector*/}, > .content-adhoc,
-  > .content-interactions,
-  > ${StyledSaveButton /* sc-selector*/} {
-    overflow: hidden;
-    height: 100%;
-  }
-
-  > ${StyledWorkspaceTitle /* sc-selector*/} {
-    text-overflow: ellipsis;
-  }
-
-  > .content-interactions,
-  > ${StyledSaveButton /* sc-selector */} {
-    flex-shrink: 0;
-  }
-
-  > .content-interactions,
-  > .content-adhoc {
-    min-width: ${props => props.theme.minimumButtonSize};
-    height: 100%;
-    text-align: center;
-  }
-
-  > .content-adhoc {
-    flex-shrink: 20;
-  }
 `
 
 const render = (props: Props) => {
   const { currentWorkspace, saved, branding, product } = props
+
+  const onInputChange = (title: string) => {
+    currentWorkspace.set('title', title)
+  }
+
   return (
-    <Root saved={saved}>
+    <Root>
       <StyledWorkspaceTitle>
         <WorkspaceTitle
           title={currentWorkspace.get('title')}
           saved={saved}
-          onChange={(title: string) => {
-            currentWorkspace.set('title', title)
-          }}
+          onInputChange={onInputChange}
+          onSave={() => currentWorkspace.save()}
           currentWorkspace={currentWorkspace}
         />
       </StyledWorkspaceTitle>
-      {/* <StyledSaveButton>
-        <SaveButton
-          isSaved={saved}
-          onClick={() => {
-            currentWorkspace.save()
-          }}
-        />
-      </StyledSaveButton> */}
-      {/* <StyledDropdown
-        className="content-interactions"
-        content={() => (
-          <NavigationBehavior>
-            <WorkspaceInteractions workspace={currentWorkspace} />
-          </NavigationBehavior>
-        )}
-      >
-        <span className="fa fa-ellipsis-v" />
-      </StyledDropdown> */}
-      <SearchButton buttonType={buttonTypeEnum.primary}>
+
+      <StyledSearchButton buttonType={buttonTypeEnum.primary}>
         <StyledDropdown
           className="content-adhoc"
           content={() => (
@@ -138,9 +89,10 @@ const render = (props: Props) => {
             />
           )}
         >
-          <Icon className="fa fa-search fa-fw" /> Search {branding} {product}
+          <StyledIcon className="fa fa-search fa-fw" /> Search {branding}{' '}
+          {product}
         </StyledDropdown>
-      </SearchButton>
+      </StyledSearchButton>
     </Root>
   )
 }
